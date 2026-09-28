@@ -10,3 +10,12 @@ import re  # Regular Expression (Regex): Used for pattern matching and text proc
 import os # OS: Used to interact with the operating system and manage environment variables
 import pyttsx3 # pyttsx3: Used to convert text responses into spoken audio (Text-to-Speech)
 
+#streamlit Page Config
+st.set_page_config(page_title='Alexa Voice Assistance',layout="centered")
+st.title("Alexa Voice Assistance(Mini)")
+st.caption("Speech -> Intent ->Action ->Speech")
+
+#Load whisper mode
+def load_whisper():
+    return whisper.load_model("base")
+model = load_whisper()  
