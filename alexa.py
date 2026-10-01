@@ -36,7 +36,7 @@ def load_intent_model():
         max_iter=500,
         random_state=42
     )
-
+vectorizer,intent_model = load_intent_model()
 #Audio recording
 sd.default.device = (14,12)
 
@@ -46,3 +46,14 @@ def record_audio(filename  = "input2.wav",duration = 5,fs = 48000):
     sd.wait()
     write(filename,fs,recording)
     st.success("Audio Recorded")
+
+# speech to text
+def speech_to_text(audio_path):
+    result = model.transcribe(audio_path)
+    return result["text"].lower() 
+
+#Intent Prediction
+def intent_prediction(text):
+    X_test = vectorizer.transform([text])
+    return intent_model.predict(X_test)[0]
+
