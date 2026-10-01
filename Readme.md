@@ -52,8 +52,8 @@ The user speaks through the computer microphone.
 * The recorded file becomes the input for speech recognition.
 
 ### 2. Speech-to-Text
+![Peech to text](speech_to_text.png)
 
-![Speech to Text](Speech_to_text.png)
 
 The recorded audio is processed using **OpenAI Whisper**.
 
