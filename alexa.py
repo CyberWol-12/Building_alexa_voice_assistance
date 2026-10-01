@@ -57,3 +57,84 @@ def intent_prediction(text):
     X_test = vectorizer.transform([text])
     return intent_model.predict(X_test)[0]
 
+
+#Action Engine
+
+def perform_action(intent,prompt = ""):
+    if intent == "play_music":
+        webbrowser.open("https://www.youtube.com/results?search_query=music")
+        return "Playing music on YouTube"
+    elif  intent == "open_website":
+        if "youtube" in prompt:
+            webbrowser.open("https://www.youtube.com")
+            return "Opening YouTube"
+        elif "google" in prompt:
+            webbrowser.open("https://www.google.com")
+            return "Opening Google"
+        return "Which website should I open?"
+    elif intent == "news":
+        webbrowser.open("https://news.google.com")
+        return "Here are today's headlines"
+    
+    elif intent == "date_time":
+        now = datetime.datetime.now()
+        return now.strftime("It is %I:%M %p on %B %d, %Y")
+
+    elif intent == "jokes_fun":
+        jokes = [
+            "Why do programmers hate nature? Too many bugs!",
+            "Why did the computer go to the doctor? It caught a virus!",
+            "I would tell you a UDP joke, but you might not get it."
+        ]
+        return random.choice(jokes)
+    elif intent == "general_qa":
+        webbrowser.open(f"https://www.google.com/search?q={prompt.replace(' ', '+')}")
+        return "Here is what I found on Google"
+    else:
+        return "Sorry, I didn't understand that."
+
+#text to speech
+
+if 'tts_engine' not in st.session_state:
+    engine = pyttsx3.init('sapi5')
+    voices = engine.getProperty("voices")
+    engine.setProperty("voice",voices[1].id)
+    engine.setProperty("rate",165)
+    st.session_state.tts_engine = engine
+
+def speak(text):
+    engine = st.session_state.tts_engine
+    try:
+         if engine.inLoop:
+             engine.endLoop()
+
+    except:
+        pass
+    engine.stop()
+    engine.say(text)
+    engine.runAndWait()
+
+# UI Control
+
+st.markdown("### talk to Alexa")
+duration =  st.slider("Recording Duration (seconds)",3,10,5)
+
+if st.button("Record & Run Alexa"):
+    record_audio(duration=duration)
+
+    text = speech_to_text('input2.wav')
+    st.success(f"🗣 You said: **{text}**")
+
+    intent = intent_prediction(text)
+    st.info(f"Detect intent: **{text}**")
+
+    response = perform_action(intent,text)
+    st.success(f"Alexa: **{response}**")
+
+    speak(response)
+
+st.markdown("-----")
+st.caption("Built with Streamlit + Whisper + ML Intent Model")
+
+
+
