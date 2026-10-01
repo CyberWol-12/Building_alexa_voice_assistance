@@ -13,6 +13,10 @@ import pyttsx3 # pyttsx3: Used to convert text responses into spoken audio (Text
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neural_network import MLPClassifier
 
+import imageio_ffmpeg
+
+ffmpeg_path = os.path.dirname(imageio_ffmpeg.get_ffmpeg_exe())
+os.environ["PATH"] = ffmpeg_path + os.pathsep + os.environ["PATH"]
 
 #streamlit Page Config
 st.set_page_config(page_title='Alexa Voice Assistance',layout="centered")
@@ -36,13 +40,16 @@ def load_intent_model():
         max_iter=500,
         random_state=42
     )
+    model_intent.fit(X,df['intent'])
+    return vectorizer,model_intent
+
 vectorizer,intent_model = load_intent_model()
 #Audio recording
-sd.default.device = (14,12)
+sd.default.device = (1,3)
 
 def record_audio(filename  = "input2.wav",duration = 5,fs = 48000):
     st.info("Listening")
-    recording = st.rec(int(duration * fs),samplerate = fs,channels = 1)
+    recording = sd.rec(int(duration * fs),samplerate = fs,channels = 1)
     sd.wait()
     write(filename,fs,recording)
     st.success("Audio Recorded")
@@ -105,7 +112,7 @@ if 'tts_engine' not in st.session_state:
 def speak(text):
     engine = st.session_state.tts_engine
     try:
-         if engine.inLoop:
+         if engine._inLoop:
              engine.endLoop()
 
     except:
@@ -126,7 +133,7 @@ if st.button("Record & Run Alexa"):
     st.success(f"🗣 You said: **{text}**")
 
     intent = intent_prediction(text)
-    st.info(f"Detect intent: **{text}**")
+    st.info(f"Detected intent: **{intent}**")
 
     response = perform_action(intent,text)
     st.success(f"Alexa: **{response}**")
